@@ -10,17 +10,21 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AnalisadorLexico {
 
-    LinkedHashMap<Integer, ArrayList<String>> tokens;
+    LinkedHashMap<Integer, ArrayList<analisadorlexico.token>> tokens;
     HashMap<String, String> lexemas;
+    
 
     public AnalisadorLexico(String path) throws IOException {
         tokens = new LinkedHashMap<>();
         lexemas = new HashMap<>();
+        
+        //analisadorlexico.token objToken = new analisadorlexico.token();
 //############### LEXEMAS DA LINGUAGEM #################
 //Aritmeticos
         lexemas.put("+", "sum");
@@ -67,27 +71,87 @@ public class AnalisadorLexico {
     }
     
     private void Analisar() throws IOException{
-        
+        boolean coment=false;
+        int line=1;
         BufferedReader reader = null;
         String linha = "";
         
         try {
-            reader = carrega("teste.txt" /*pegar argumento args*/);
+            reader = carrega("C:/Users/Aluno/Documents/prog.txt" /*pegar argumento args*/);
         } catch (IOException ex) {
             Logger.getLogger(AnalisadorLexico.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
         
-        while(reader.ready()){
-            linha = linha + reader.readLine();
+        while (reader.ready()) {
+            
+            ArrayList<analisadorlexico.token> tokenLine = new ArrayList<>();
+            linha = reader.readLine();
+            
+            for (int i = 0; i < linha.length(); i++) {
+
+                //System.out.println(c);
+                char c = linha.charAt(i);
+                char c1;
+                if((i<linha.length()) -1)
+                    c1 = linha.charAt(i+1);
+                
+                if (c == '#') {
+                    coment = true;
+                } else {
+                    coment = false;
+                }
+                if (coment == false) {
+                    if (c == '=') {
+                        String retorno = lexemas.get("=");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if (c == '+') {
+                        String retorno = lexemas.get("+");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if (c == '-') {
+                        String retorno = lexemas.get("-");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if ((c+""+c1).equals("<=") ) {
+                        String retorno = lexemas.get("<=");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                     else if ((c+""+c1).equals("=<")) {
+                        String retorno = lexemas.get("=<");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if ( (c+""+c1).equals(">=") ) {
+                        String retorno = lexemas.get(">=");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                     else if ((c+""+c1).equals("=>")) {
+                        String retorno = lexemas.get("=>");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    
+                }
+
+            }
+            tokens.put(line, tokenLine);
+            line++; 
         }
-        
-       
-        for (int i = 0; i < linha.length(); i++) {
-            System.out.println(linha.charAt(i));
+        imprimeResul();
+    }
+    
+    private void imprimeResul(){
+        for (Map.Entry<Integer, ArrayList<analisadorlexico.token>> entry : tokens.entrySet()) {
+            Integer integer = entry.getKey();
+            ArrayList<analisadorlexico.token> arrayList = entry.getValue();
+            System.out.print(integer);
+            for (analisadorlexico.token object : arrayList) {
+                System.out.print(" "+object.toString());
+                
+            }
+            System.out.println("");
+            
         }
-        
-        
     }
 
     private AnalisadorLexico() {
