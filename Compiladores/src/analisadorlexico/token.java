@@ -19,9 +19,9 @@ public class token {
         this.valor = valor;
     }
     
-    public token(){
-    
-    }
+//    public token(){
+//    
+//    }
 
     public String getTipo() {
         return tipo;
@@ -41,7 +41,7 @@ public class token {
 
     @Override
     public String toString() {
-        return "<" + tipo + ", " + valor + ">";
+        return "<" + tipo + " " + valor + ">";
     }
     
     
