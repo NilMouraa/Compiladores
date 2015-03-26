@@ -173,6 +173,10 @@ public class AnalisadorLexico {
                         String retorno = lexemas.get(".");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
+                    else if (c == ',' && !Character.isDigit(linha.charAt(i+1)) && !Character.isDigit(linha.charAt(i-1))) {
+                        String retorno = lexemas.get(",");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
                     
                     else if (c == ':') {
                         String retorno = lexemas.get(":");
@@ -299,6 +303,11 @@ public class AnalisadorLexico {
                             }
                             else if(linha.charAt(j)=='-'){
                                 variavel = variavel + linha.charAt(j);
+                            }
+                            else if(linha.charAt(j)=='_'){
+                                variavel = variavel + linha.charAt(j);
+                                value = j;
+                                
                             }
                             else{
                                //value = j;
