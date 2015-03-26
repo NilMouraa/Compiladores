@@ -320,7 +320,7 @@ public class AnalisadorLexico {
                                 tokenLine.add(new analisadorlexico.token("func" , variavel));
                             }
                             else if(linha.charAt(value2)==' '){
-                                for (int j = i; j < linha.length(); j++) {
+                                for (int j = value2; j < linha.length(); j++) {
                                     if(linha.charAt(j)==' '){
                                         func=true;
                                     }
