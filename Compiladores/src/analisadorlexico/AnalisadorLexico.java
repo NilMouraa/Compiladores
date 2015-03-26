@@ -12,8 +12,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
-
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class AnalisadorLexico {
 
@@ -65,6 +66,11 @@ public class AnalisadorLexico {
         lexemas.put("fim-para", "endforloop");
         lexemas.put("enquanto", "whileloop");
         lexemas.put("fim-enquanto", "endwhileloop");
+        
+//Outros
+        lexemas.put("[", "abreCochete");
+        lexemas.put("]", "fechaCochete");
+        
 //##############################################################################
     
     
@@ -74,11 +80,18 @@ public class AnalisadorLexico {
     private void Analisar() throws IOException{
         boolean coment=false;
         int line=1;
+        int contComent = 0;
         BufferedReader reader = null;
         String linha = "";
+//        Pattern pCondicao = Pattern.compile("(-|*)");
+//        
+//        if(pCondicao.matcher("oi").matches())
+//        {
+//            
+//        }
         
         try {
-            reader = carrega("C:/Users/Aluno/Documents/prog.txt" /*pegar argumento args*/);
+            reader = carrega("C:/Users/Nil Martins/Documents/prog.txt" /*pegar argumento args*/);
         } catch (IOException ex) {
             Logger.getLogger(AnalisadorLexico.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
@@ -93,17 +106,25 @@ public class AnalisadorLexico {
 
                 //System.out.println(c);
                 char c = linha.charAt(i);
-                char c1;
-                if((i<linha.length()) -1)
-                    c1 = linha.charAt(i+1);
+                String c1,c0;
+                int contAspas=0;
+                if(i!=(linha.length()-1))
+                    c1= linha.charAt(i+1)+"";
+                else
+                    c1 = "";
+                
+                if(i>0)
+                    c0=linha.charAt(i-1)+"";
+                else c0="";
                 
                 if (c == '#') {
+                    contComent++;
                     coment = true;
-                } else {
+                } else if(contComent == 2){
                     coment = false;
                 }
                 if (coment == false) {
-                    if (c == '=') {
+                    if (c == '=' && linha.charAt(i-1)!='=' && linha.charAt(i-1)!='<' && linha.charAt(i-1)!='>' && linha.charAt(i-1)!='!' && linha.charAt(i+1)!='=' && linha.charAt(i+1)!='>' && linha.charAt(i+1)!='<') {
                         String retorno = lexemas.get("=");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
@@ -111,26 +132,186 @@ public class AnalisadorLexico {
                         String retorno = lexemas.get("+");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                    else if (c == '-') {
+                    else if (c == '-' && (linha.charAt(i-1)!='m' && linha.charAt(i-2)!='i' && linha.charAt(i-3)!='f') && (linha.charAt(i-4)!=' ' || i!= 4)){
                         String retorno = lexemas.get("-");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                    else if ((c+""+c1).equals("<=") ) {
+                    else if (c == '*') {
+                        String retorno = lexemas.get("*");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if ((c0+c+c1).equals(" x ")) {
+                        String retorno = lexemas.get("x");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if (c == '/') {
+                        String retorno = lexemas.get("/");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if (c == ':') {
+                        String retorno = lexemas.get(":");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if (c == '<' && linha.charAt(i-1)!='=' && linha.charAt(i+1)!='=') {
+                        String retorno = lexemas.get("<");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if (c == '>' && linha.charAt(i-1)!='=' && linha.charAt(i+1)!='=') {
+                        String retorno = lexemas.get(">");
+                        tokenLine.add(new analisadorlexico.token(retorno,""));
+                    }
+                    else if ((c+c1).equals("<=") ) {
                         String retorno = lexemas.get("<=");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                     else if ((c+""+c1).equals("=<")) {
+                     else if ((c+c1).equals("=<")) {
                         String retorno = lexemas.get("=<");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                    else if ( (c+""+c1).equals(">=") ) {
+                    else if ( (c+c1).equals(">=") ) {
                         String retorno = lexemas.get(">=");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                     else if ((c+""+c1).equals("=>")) {
+                     else if ((c+c1).equals("=>")) {
                         String retorno = lexemas.get("=>");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
+                    
+                     else if(((c+c1).equals("=="))){
+                         String retorno = lexemas.get("==");
+                         tokenLine.add(new analisadorlexico.token(retorno,""));
+                     }
+                    else if(((c+c1).equals("!="))){
+                         String retorno = lexemas.get("!=");
+                         tokenLine.add(new analisadorlexico.token(retorno,""));
+                     }
+//                    else if((linha.length()>(i+5))&&((""+linha.charAt(i)+linha.charAt(i+1)+linha.charAt(i+2)+linha.charAt(i+3)+linha.charAt(i+4)).equals("tela."))){
+//                         String retorno = lexemas.get("var");
+//                         tokenLine.add(new analisadorlexico.token(retorno,"tela"));
+//                     }
+                    
+                    else if(c==('"')){
+                        contAspas++;
+                        
+                        
+                        String texto="";
+                        for(int j = i+1; j < linha.length(); j++) {
+                            if(linha.charAt(j)!='"')
+                                texto = texto + linha.charAt(j);
+                            else{
+                                    i=j;
+                                    contAspas=0;
+                                    break;
+                                }
+                        }
+//                        System.out.println(texto);
+                         String retorno = lexemas.get("str");
+                        tokenLine.add(new analisadorlexico.token(retorno , texto));
+                        
+                    }
+//                    && linha.charAt(i-1)!='['
+                    else if(Character.isDigit(linha.charAt(i)) && contAspas == 0 && (!Character.isLetter(linha.charAt(i-1))) ){
+                        String var="";
+                        int add=0;
+                        
+                        
+                        
+                        for (int j = i; j < linha.length(); j++) {
+                           if (Character.isDigit(linha.charAt(j))){
+                               var = var + linha.charAt(j);
+                               add=j;
+                               
+                           }
+                           else if(linha.charAt(j)==','){
+                               var = var + linha.charAt(j);
+                              
+                               
+                           }
+                           else if(linha.charAt(j)=='.'){
+                               var = var + linha.charAt(j);
+                               
+                              
+                           }
+                           else
+                           {
+                              
+                               break;
+                           }
+                            
+                        }
+                       i=add;
+                       char resp='i';
+                        for (int k = 0; k < var.length(); k++) {
+                            if(var.charAt(k)=='.' || var.charAt(k)==','){
+                                resp='f';
+                                break;
+                            }
+                        
+                        }
+                        if(resp=='f'){
+                            String retorno = lexemas.get("float");
+                            tokenLine.add(new analisadorlexico.token(retorno , var));
+                        }
+                        else if(resp=='i'){
+                            String retorno = lexemas.get("int");
+                            tokenLine.add(new analisadorlexico.token(retorno , var));
+                        }
+                    }
+                    else if(Character.isLetter(c) || linha.charAt(i)=='_' && contAspas==0  ){
+                        String variavel="";
+                        int value=0;
+                        boolean func=false;
+                        for (int j = i; j < linha.length(); j++) {
+                            
+                            if(Character.isLetter(linha.charAt(j))){
+                                variavel = variavel + linha.charAt(j);
+                                value = j;
+                            }
+                            else if(Character.isDigit(linha.charAt(j))){
+                                variavel = variavel + linha.charAt(j);
+                                value = j;
+                            }
+                            else if(linha.charAt(j)=='-'){
+                                variavel = variavel + linha.charAt(j);
+                            }
+                            else{
+                               value = j;
+                                break;
+                               
+                            }
+                            
+                        }
+                        i=value;
+                        //System.out.print(variavel+" ");
+                        
+                        if(!lexemas.containsKey(variavel)){
+                            String retorno = lexemas.get("var");
+                            
+
+                            if(linha.charAt(i)=='('){
+                                tokenLine.add(new analisadorlexico.token("func" , variavel));
+                            }
+//                            else if(linha.charAt(i)==' '){
+//                                for (int j = i; j < linha.length(); j++) {
+//                                    if(linha.charAt(j)==' ' || linha.charAt(j)=='('){
+//                                        func=true;
+//                                    }
+//                                }
+//                                if(func==true){
+//                                    tokenLine.add(new analisadorlexico.token("func" , variavel));
+//                                }
+//                            }
+                            
+                            
+                            else tokenLine.add(new analisadorlexico.token(retorno , variavel));
+                        }
+                        else
+                        {
+                            String retorno = lexemas.get(variavel);
+                            tokenLine.add(new analisadorlexico.token(retorno , "")); 
+                        }
+                    }
+                    
                     
                 }
 
