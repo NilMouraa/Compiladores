@@ -173,7 +173,7 @@ public class AnalisadorLexico {
                         String retorno = lexemas.get(".");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                    else if (c == ',' && !Character.isDigit(linha.charAt(i+1)) && !Character.isDigit(linha.charAt(i-1))) {
+                    else if (c == ',' && !Character.isDigit(linha.charAt(i+1))) {
                         String retorno = lexemas.get(",");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
