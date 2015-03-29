@@ -104,8 +104,10 @@ public class AnalisadorLexico {
         }
         String texto="";
         boolean dentroString=false;
+        boolean dentroFunc=false;
+        boolean entrei =false;
         while (reader.ready()) {
-            boolean dentroFunc=false;
+            
             int contParenAbre=0;
             int contParenFecha=0;
             String textoConcat="";
@@ -186,6 +188,7 @@ public class AnalisadorLexico {
                     else if ((c0+c+c1).equals(" x ") ) {
                         String retorno = lexemas.get("x");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
+                        
                     }
                     
                     else if (c=='x'){
@@ -195,8 +198,7 @@ public class AnalisadorLexico {
                             tokenLine.add(new analisadorlexico.token(retorno,""));
                             }
                         }
-                       String retorno = lexemas.get("x");
-                        tokenLine.add(new analisadorlexico.token(retorno,"")); 
+                        
                     }
                     else if (c == '/') {
                         String retorno = lexemas.get("/");
@@ -206,7 +208,7 @@ public class AnalisadorLexico {
                         String retorno = lexemas.get(".");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
-                    else if ((c == ',' && !Character.isDigit(linha.charAt(i+1)))||((c == ',' && !Character.isDigit(linha.charAt(i-1))))) {
+                    else if ((c == ',' && (!Character.isDigit(linha.charAt(i+1))))||(c == ',')) {
                         String retorno = lexemas.get(",");
                         tokenLine.add(new analisadorlexico.token(retorno,""));
                     }
@@ -322,7 +324,7 @@ public class AnalisadorLexico {
                                add=j;
                                
                            }
-                           else if(linha.charAt(j)==',' && Character.isDigit(linha.charAt(j+1))){
+                           else if(linha.charAt(j)==',' && Character.isDigit(linha.charAt(j+1)) && (!dentroFunc || (contParenAbre>contParenFecha && contParenAbre>1))){
                            contVirg++;
                                if(contVirg==1)
                                var = var + linha.charAt(j);
@@ -413,7 +415,7 @@ public class AnalisadorLexico {
                                         break;
                                     }
                                     else {
-                                        func = false;
+                                        func=false;
                                         break;
 
                                     }
@@ -432,7 +434,7 @@ public class AnalisadorLexico {
                             
                             else {
                                 tokenLine.add(new analisadorlexico.token(retorno , variavel));
-                                dentroFunc=false;
+                                
                             }
                         }
                         else
